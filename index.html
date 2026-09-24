@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kuis DKV - Sketsa & Ilustrasi</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --success: #16a34a;
+      --danger: #dc2626;
+      --bg: #f1f5f9;
+      --card: #ffffff;
+      --text: #1e293b;
+      --muted: #64748b;
+      --border: #e2e8f0;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 24px 16px 60px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 32px;
+      padding: 28px 20px;
+      background: linear-gradient(135deg, #2563eb, #7c3aed);
+      color: white;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(37, 99, 235, 0.25);
+    }
+
+    header h1 {
+      font-size: 1.75rem;
+      margin-bottom: 6px;
+    }
+
+    header p {
+      opacity: 0.9;
+      font-size: 0.95rem;
+    }
+
+    .progress-wrap {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-bottom: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    .progress-info {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .progress-bar {
+      height: 10px;
+      background: var(--border);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #2563eb, #7c3aed);
+      border-radius: 99px;
+      transition: width 0.35s ease;
+      width: 0%;
+    }
+
+    .question-card {
+      background: var(--card);
+      border-radius: 14px;
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+      border: 1px solid var(--border);
+      display: none;
+    }
+
+    .question-card.active {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .q-number {
+      display: inline-block;
+      background: var(--primary);
+      color: white;
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 99px;
+      margin-bottom: 12px;
+    }
+
+    .q-text {
+      font-size: 1.05rem;
+      font-weight: 500;
+      margin-bottom: 18px;
+      line-height: 1.55;
+    }
+
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .option {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 14px 16px;
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      background: #fafafa;
+    }
+
+    .option:hover {
+      border-color: #93c5fd;
+      background: #eff6ff;
+    }
+
+    .option.selected {
+      border-color: var(--primary);
+      background: #eff6ff;
+    }
+
+    .option.correct {
+      border-color: var(--success);
+      background: #f0fdf4;
+    }
+
+    .option.wrong {
+      border-color: var(--danger);
+      background: #fef2f2;
+    }
+
+    .option input {
+      display: none;
+    }
+
+    .option-letter {
+      flex-shrink: 0;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: var(--text);
+    }
+
+    .option.selected .option-letter {
+      background: var(--primary);
+      color: white;
+    }
+
+    .option.correct .option-letter {
+      background: var(--success);
+      color: white;
+    }
+
+    .option.wrong .option-letter {
+      background: var(--danger);
+      color: white;
+    }
+
+    .option-text {
+      flex: 1;
+      font-size: 0.95rem;
+      padding-top: 2px;
+    }
+
+    .nav-buttons {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    button {
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 600;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+    }
+
+    .btn-primary:disabled {
+      background: #94a3b8;
+      cursor: not-allowed;
+    }
+
+    .btn-secondary {
+      background: #e2e8f0;
+      color: var(--text);
+    }
+
+    .btn-secondary:hover {
+      background: #cbd5e1;
+    }
+
+    .btn-success {
+      background: var(--success);
+      color: white;
+    }
+
+    .btn-success:hover {
+      background: #15803d;
+    }
+
+    #result-screen {
+      display: none;
+      text-align: center;
+      background: var(--card);
+      border-radius: 16px;
+      padding: 40px 24px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+
+    #result-screen h2 {
+      font-size: 1.6rem;
+      margin-bottom: 8px;
+    }
+
+    .score-circle {
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      margin: 24px auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: conic-gradient(var(--primary) 0%, #e2e8f0 0%);
+      position: relative;
+    }
+
+    .score-circle::before {
+      content: '';
+      position: absolute;
+      inset: 12px;
+      background: white;
+      border-radius: 50%;
+    }
+
+    .score-value {
+      position: relative;
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: var(--primary);
+    }
+
+    .score-label {
+      position: relative;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    .result-detail {
+      margin: 20px 0;
+      font-size: 1rem;
+      color: var(--muted);
+    }
+
+    .result-message {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 24px;
+    }
+
+    .essay-section {
+      display: none;
+      margin-top: 32px;
+    }
+
+    .essay-section.active {
+      display: block;
+    }
+
+    .essay-card {
+      background: var(--card);
+      border-radius: 14px;
+      padding: 22px;
+      margin-bottom: 18px;
+      border: 1px solid var(--border);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .essay-card h3 {
+      font-size: 1rem;
+      margin-bottom: 10px;
+      color: var(--primary);
+    }
+
+    .essay-card p {
+      font-size: 0.95rem;
+      margin-bottom: 12px;
+      line-height: 1.55;
+    }
+
+    .essay-card textarea {
+      width: 100%;
+      min-height: 100px;
+      padding: 12px;
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 0.95rem;
+      resize: vertical;
+      transition: border-color 0.2s;
+    }
+
+    .essay-card textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    .section-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin: 28px 0 16px;
+      padding-bottom: 8px;
+      border-bottom: 3px solid var(--primary);
+      display: inline-block;
+    }
+
+    .start-screen {
+      text-align: center;
+      background: var(--card);
+      border-radius: 16px;
+      padding: 48px 24px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+
+    .start-screen h2 {
+      font-size: 1.5rem;
+      margin-bottom: 12px;
+    }
+
+    .start-screen p {
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .start-screen .info-box {
+      background: #eff6ff;
+      border-radius: 10px;
+      padding: 16px;
+      margin: 24px 0;
+      text-align: left;
+      font-size: 0.9rem;
+    }
+
+    .start-screen .info-box li {
+      margin-bottom: 6px;
+      margin-left: 18px;
+    }
+
+    @media (max-width: 600px) {
+      header h1 { font-size: 1.4rem; }
+      .q-text { font-size: 1rem; }
+      .option { padding: 12px; }
+      button { padding: 11px 18px; font-size: 0.9rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🎨 Kuis Desain Komunikasi Visual</h1>
+      <p>Materi: Sketsa, Ilustrasi, Unsur & Prinsip Seni Rupa</p>
+    </header>
+
+    <div id="start-screen" class="start-screen">
+      <h2>Siap mengerjakan kuis?</h2>
+      <p>Uji pemahamanmu tentang sketsa, ilustrasi, dan unsur seni rupa.</p>
+      <div class="info-box">
+        <strong>Petunjuk:</strong>
+        <ul>
+          <li>Terdapat <strong>20 soal pilihan ganda</strong></li>
+          <li>Setelah selesai PG, lanjut ke <strong>5 soal essay</strong></li>
+          <li>Skor dihitung otomatis untuk soal pilihan ganda</li>
+          <li>Waktu pengerjaan bebas (tidak dibatasi)</li>
+        </ul>
+      </div>
+      <button class="btn-primary" onclick="startQuiz()" style="font-size:1.05rem; padding:14px 36px;">
+        Mulai Kuis →
+      </button>
+    </div>
+
+    <div id="progress-wrap" class="progress-wrap" style="display:none;">
+      <div class="progress-info">
+        <span id="progress-text">Soal 1 dari 20</span>
+        <span id="progress-percent">0%</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progress-fill"></div>
+      </div>
+    </div>
+
+    <div id="questions-container"></div>
+
+    <div id="essay-section" class="essay-section">
+      <div class="section-title">📝 Bagian Essay</div>
+      <p style="color:var(--muted); margin-bottom:20px; font-size:0.95rem;">Jawablah pertanyaan berikut dengan jelas. Jawaban essay tidak dinilai otomatis.</p>
+      
+      <div class="essay-card">
+        <h3>Essay 1</h3>
+        <p>Budi adalah seorang desainer produk di perusahaan perlengkapan rumah tangga. Ia mendapat tugas untuk merancang botol minum lipat yang praktis untuk pendaki gunung. Sebelum mulai membuat model 3D di komputer atau membuat prototipe fisik, Budi terlebih dahulu menggambar puluhan coretan bentuk kasar di kertas untuk menuangkan ide-ide awal di pikirannya. Berdasarkan cerita di atas, mengapa langkah Budi yang membuat sketsa terlebih dahulu sangat penting dalam proses desain produk? Sebutkan fungsinya!</p>
+        <textarea placeholder="Tulis jawabanmu di sini..." id="essay1"></textarea>
+      </div>
+
+      <div class="essay-card">
+        <h3>Essay 2</h3>
+        <p>Dalam membuat karya sketsa dan ilustrasi, ada berbagai macam teknik yang harus kalian pahami. Salah satunya adalah teknik arsir. Apakah yang dimaksud dengan teknik arsir?</p>
+        <textarea placeholder="Tulis jawabanmu di sini..." id="essay2"></textarea>
+      </div>
+
+      <div class="essay-card">
+        <h3>Essay 3</h3>
+        <p>Gambar ilustrasi banyak ditemukan dalam komik, cover, majalah dan lain-lain. Setiap penempatan yang terdapat gambar ilustrasi, memiliki fungsi yang tidak sama dengan lainnya. Hal apa yang diperoleh dari adanya penggunaan gambar ilustrasi pada cover?</p>
+        <textarea placeholder="Tulis jawabanmu di sini..." id="essay3"></textarea>
+      </div>
+
+      <div class="essay-card">
+        <h3>Essay 4</h3>
+        <p>Pembuatan gambar ilustrasi dapat dilakukan dengan cara manual maupun teknologi digital. Jelaskan perbedaan dari keduanya!</p>
+        <textarea placeholder="Tulis jawabanmu di sini..." id="essay4"></textarea>
+      </div>
+
+      <div class="essay-card">
+        <h3>Essay 5</h3>
+        <p>Apa sajakah alat dan bahan yang digunakan dalam teknik kering untuk membuat gambar sketsa dan ilustrasi?</p>
+        <textarea placeholder="Tulis jawabanmu di sini..." id="essay5"></textarea>
+      </div>
+
+      <div style="text-align:center; margin-top:24px;">
+        <button class="btn-success" onclick="finishEssay()">Selesai & Lihat Hasil</button>
+      </div>
+    </div>
+
+    <div id="result-screen">
+      <h2>Hasil Kuis</h2>
+      <div class="score-circle" id="score-circle">
+        <div class="score-value" id="score-value">0</div>
+        <div class="score-label">dari 20</div>
+      </div>
+      <div class="result-detail" id="result-detail"></div>
+      <div class="result-message" id="result-message"></div>
+      <button class="btn-primary" onclick="location.reload()">Ulangi Kuis</button>
+      <button class="btn-secondary" onclick="showReview()" style="margin-left:10px;">Lihat Pembahasan</button>
+    </div>
+
+    <div id="review-section" style="display:none; margin-top:32px;"></div>
+  </div>
+
+  <script>
+    const questions = [
+      {
+        q: "Gambaran kasar atau gambar rancangan awal yang digunakan untuk mengungkapkan ide atau gagasan dari pikiran ke dalam bentuk visual disebut…",
+        options: ["Ilustrasi", "Sketsa", "Nirmana", "Lukisan", "Karikatur"],
+        answer: 1
+      },
+      {
+        q: "Di bawah ini yang termasuk perbedaan utama antara sketsa dan ilustrasi dalam konteks Desain Komunikasi Visual adalah…",
+        options: [
+          "Sketsa digunakan untuk menghibur khalayak, sedangkan ilustrasi digunakan untuk menentukan simbol visual",
+          "Sketsa adalah hasil akhir karya seni, sedangkan ilustrasi hanyalah coretan awal sebelum menggambar",
+          "Sketsa berfokus pada warna yang kompleks, sedangkan ilustrasi hanya berfokus pada garis hitam putih",
+          "Sketsa hanya menggunakan media digital, sedangkan ilustrasi harus menggunakan media tradisional seperti cat air",
+          "Sketsa adalah rancangan kasar untuk visualisasi ide, sementara ilustrasi berfungsi sebagai pendukung cerita dengan pesan mendalam"
+        ],
+        answer: 4
+      },
+      {
+        q: "Perbedaan utama antara gambar ilustrasi dan seni lukis naturalis terletak pada media pewarnanya, yaitu…",
+        options: [
+          "Ilustrasi menggunakan cat minyak, sedangkan seni lukis menggunakan tinta cina",
+          "Ilustrasi identik menggunakan pensil dan tinta hitam (tinta cina), sedangkan seni lukis menggunakan cat minyak dan cat air",
+          "Ilustrasi menggunakan krayon, sedangkan seni lukis menggunakan pensil grafit",
+          "Ilustrasi hanya menggunakan cat air, sedangkan seni lukis menggunakan krayon",
+          "Ilustrasi dan seni lukis sama-sama hanya menggunakan cat akrilik"
+        ],
+        answer: 1
+      },
+      {
+        q: "Kegiatan awal sebelum melakukan kegiatan berkarya seni yang melibatkan proses berpikir dalam membentuk sesuatu dan diawali dengan menentukan tema dinamakan…",
+        options: ["Prinsip desain", "Konsep karya", "Gambar ilustrasi", "Sketsa kasar", "Finishing"],
+        answer: 1
+      },
+      {
+        q: "Unsur-unsur visual/seni rupa yang membentuk sebuah karya rupa terdiri atas…",
+        options: [
+          "Titik, garis, bidang, tekstur, ruang dan warna",
+          "Kesatuan, bidang, tekstur, ruang dan warna",
+          "Metris, asimetris, sederajat, dan radial",
+          "Hue, value, saturasi, CMYK, dan RGB",
+          "Headline, subhead, body copy, dan baseline"
+        ],
+        answer: 0
+      },
+      {
+        q: "Teknik menggambar dengan membuat garis sejajar atau menyilang untuk mendapatkan kesan gelap-terang pada objek gambar dinamakan…",
+        options: ["Teknik dussel", "Teknik pointilis", "Teknik aquarel", "Teknik arsir", "Teknik blok"],
+        answer: 3
+      },
+      {
+        q: "Teknik menggambar sketsa dan ilustrasi yang menggunakan kumpulan titik-titik untuk mendapatkan kesan gelap-terang objek dinamakan…",
+        options: ["Teknik aquarel", "Teknik pointilis", "Teknik arsir", "Teknik dussel", "Teknik dus"],
+        answer: 1
+      },
+      {
+        q: "Seorang desainer ingin membuat gradasi yang sangat halus pada gambar wajah. Teknik manakah yang paling tepat disarankan?",
+        options: ["Teknik arsir", "Teknik pointilis", "Teknik aquarel", "Teknik dussel", "Teknik garis"],
+        answer: 3
+      },
+      {
+        q: "Gambar kartun yang hanya dapat dilihat dari satu arah saja, berkarakter polos, tidak bervolume, dan hanya bergerak ke atas, bawah, kiri, atau kanan dinamakan…",
+        options: ["Kartun tiga dimensi", "Gambar dua dimensi", "Gambar karikatur", "Cerita bergambar", "Komik strip"],
+        answer: 1
+      },
+      {
+        q: "Gambar yang menggunakan kelucuan dengan ciri khas melebih-lebihkan karakter objek (umumnya tokoh seseorang) serta berfungsi sebagai hiburan dan penyampai informasi adalah…",
+        options: ["Karikatur", "Kartun 2D", "Cergam", "Poster teks", "Logo"],
+        answer: 0
+      },
+      {
+        q: "Golongan pensil menurut tingkat kekerasannya yang termasuk dalam kategori keras (hard) adalah…",
+        options: [
+          "2B, 3B, 4B, 6B dan 7B",
+          "H, HB, F dan 3H",
+          "4H, 5H, 6H, 7H, 8H dan 9H",
+          "B, 2B, Konte dan Dermatograf",
+          "HB, 2B, 3B dan 4B"
+        ],
+        answer: 2
+      },
+      {
+        q: "Dalam klasifikasi pensil, kategori pensil yang memiliki karakteristik “lunak” ditandai dengan kode huruf…",
+        options: ["H", "K", "B", "F", "HB"],
+        answer: 2
+      },
+      {
+        q: "Jenis pensil warna yang dapat larut dalam air dan berfungsi sebagai cat air jika diusap menggunakan kuas yang dibasahi dinamakan…",
+        options: ["Pensil konte", "Watercolor pencil", "Pensil dermatograf", "Pensil grafit stik", "Krayon minyak"],
+        answer: 1
+      },
+      {
+        q: "Manakah pernyataan yang paling tepat menggambarkan perbedaan antara gambar kartun dan karikatur menurut jenis ilustrasinya?",
+        options: [
+          "Kartun selalu menggunakan teknik cat air, sedangkan karikatur selalu menggunakan pensil mekanik",
+          "Kartun adalah gambar tanpa tulisan, sedangkan karikatur harus memiliki balon kata",
+          "Kartun mewakili kejadian lucu (2D dan 3D), sedangkan karikatur melebih-lebihkan ciri khas objek untuk tujuan menghibur",
+          "Kartun berfokus pada cerita bersambung, sedangkan karikatur hanya satu gambar tunggal tanpa pesan",
+          "Kartun bersifat informatif, sedangkan karikatur hanya bersifat dekoratif saja"
+        ],
+        answer: 2
+      },
+      {
+        q: "Keseimbangan desain di mana elemen-elemen di satu sisi sama dengan elemen di sisi lainnya (membagi rata berat visual) dinamakan…",
+        options: ["Keseimbangan asimetris", "Keseimbangan simetris", "Keseimbangan sederajat", "Keseimbangan radial", "Keseimbangan aksial"],
+        answer: 1
+      },
+      {
+        q: "Prinsip desain yang mengatur hubungan ukuran antara bagian yang satu dengan bagian yang lain, atau dengan keseluruhan objek disebut…",
+        options: ["Keseimbangan (Balance)", "Penekanan (Emphasis)", "Proporsi", "Kesatuan (Unity)", "Irama"],
+        answer: 2
+      },
+      {
+        q: "Di dalam unsur-unsur rupa, terdapat elemen yang memberikan kesan kedalaman, volume dan dimensi pada sebuah karya. Unsur ini disebut…",
+        options: ["Titik", "Bidang", "Ruang", "Garis", "Warna"],
+        answer: 2
+      },
+      {
+        q: "Dalam prinsip keseimbangan (balance), jika sebuah desain memiliki elemen yang tidak sama antara sisi kiri dan kanan namun tetap terasa seimbang secara visual, maka disebut keseimbangan…",
+        options: ["Proporsional", "Radial", "Terpusat", "Asimetris", "Simetris"],
+        answer: 3
+      },
+      {
+        q: "Alat pewarna manakah yang paling cocok digunakan jika seorang illustrator ingin mendapatkan efek transparan dengan teknik sapuan basah (wet technique)?",
+        options: ["Grafit stik", "Minyak/lilin", "Cat air transparan", "Dermatograf", "Conte (soft pencil)"],
+        answer: 2
+      },
+      {
+        q: "Andi sedang menggambar sebuah objek logam berbentuk kerucut. Ia ingin menciptakan gradasi warna yang sangat halus agar transisinya tidak terlihat patah-patah. Teknik manakah yang sebaiknya Andi gunakan?",
+        options: ["Teknik grafit stik", "Teknik aquarel", "Teknik arsir", "Teknik dussel", "Teknik pointilis"],
+        answer: 3
+      }
+    ];
+
+    let currentQ = 0;
+    let userAnswers = new Array(questions.length).fill(null);
+
+    function startQuiz() {
+      document.getElementById('start-screen').style.display = 'none';
+      document.getElementById('progress-wrap').style.display = 'block';
+      renderQuestion();
+    }
+
+    function renderQuestion() {
+      const container = document.getElementById('questions-container');
+      container.innerHTML = '';
+
+      const q = questions[currentQ];
+      const card = document.createElement('div');
+      card.className = 'question-card active';
+
+      let optionsHTML = '';
+      q.options.forEach((opt, i) => {
+        const selected = userAnswers[currentQ] === i ? 'selected' : '';
+        optionsHTML += `
+          <label class="option ${selected}" onclick="selectOption(${i})">
+            <input type="radio" name="q${currentQ}" value="${i}" ${selected ? 'checked' : ''}>
+            <span class="option-letter">${String.fromCharCode(97 + i)}</span>
+            <span class="option-text">${opt}</span>
+          </label>
+        `;
+      });
+
+      card.innerHTML = `
+        <span class="q-number">Soal ${currentQ + 1}</span>
+        <div class="q-text">${q.q}</div>
+        <div class="options">${optionsHTML}</div>
+        <div class="nav-buttons">
+          <button class="btn-secondary" onclick="prevQuestion()" ${currentQ === 0 ? 'disabled' : ''}>← Sebelumnya</button>
+          ${currentQ === questions.length - 1
+            ? `<button class="btn-success" onclick="finishPG()" ${userAnswers[currentQ] === null ? 'disabled' : ''}>Selesai Pilihan Ganda →</button>`
+            : `<button class="btn-primary" onclick="nextQuestion()" ${userAnswers[currentQ] === null ? 'disabled' : ''}>Berikutnya →</button>`
+          }
+        </div>
+      `;
+
+      container.appendChild(card);
+      updateProgress();
+    }
+
+    function selectOption(index) {
+      userAnswers[currentQ] = index;
+      renderQuestion();
+    }
+
+    function nextQuestion() {
+      if (userAnswers[currentQ] === null) return;
+      if (currentQ < questions.length - 1) {
+        currentQ++;
+        renderQuestion();
+      }
+    }
+
+    function prevQuestion() {
+      if (currentQ > 0) {
+        currentQ--;
+        renderQuestion();
+      }
+    }
+
+    function updateProgress() {
+      const answered = userAnswers.filter(a => a !== null).length;
+      const pct = Math.round((answered / questions.length) * 100);
+      document.getElementById('progress-text').textContent = `Soal ${currentQ + 1} dari ${questions.length}`;
+      document.getElementById('progress-percent').textContent = `${pct}% terjawab`;
+      document.getElementById('progress-fill').style.width = pct + '%';
+    }
+
+    function finishPG() {
+      if (userAnswers.includes(null)) {
+        alert('Masih ada soal yang belum dijawab. Silakan lengkapi semua soal terlebih dahulu.');
+        return;
+      }
+      document.getElementById('questions-container').style.display = 'none';
+      document.getElementById('progress-wrap').style.display = 'none';
+      document.getElementById('essay-section').classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function finishEssay() {
+      document.getElementById('essay-section').classList.remove('active');
+      showResult();
+    }
+
+    function showResult() {
+      let correct = 0;
+      userAnswers.forEach((ans, i) => {
+        if (ans === questions[i].answer) correct++;
+      });
+
+      const score = correct;
+      const pct = Math.round((score / questions.length) * 100);
+
+      document.getElementById('score-value').textContent = score;
+      document.getElementById('result-detail').textContent = `Kamu menjawab benar ${score} dari ${questions.length} soal pilihan ganda (${pct}%)`;
+
+      let msg = '';
+      if (pct >= 90) msg = '🌟 Luar biasa! Pemahamanmu sangat baik.';
+      else if (pct >= 75) msg = '👏 Bagus! Terus tingkatkan lagi.';
+      else if (pct >= 60) msg = '👍 Cukup baik. Masih bisa lebih baik lagi.';
+      else msg = '💪 Jangan menyerah! Pelajari lagi materi ini ya.';
+
+      document.getElementById('result-message').textContent = msg;
+
+      const circle = document.getElementById('score-circle');
+      circle.style.background = `conic-gradient(var(--primary) ${pct}%, #e2e8f0 ${pct}%)`;
+
+      document.getElementById('result-screen').style.display = 'block';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function showReview() {
+      const review = document.getElementById('review-section');
+      review.style.display = 'block';
+      review.innerHTML = '<div class="section-title">📖 Pembahasan Soal</div>';
+
+      questions.forEach((q, i) => {
+        const userAns = userAnswers[i];
+        const isCorrect = userAns === q.answer;
+        const card = document.createElement('div');
+        card.className = 'question-card active';
+        card.style.marginBottom = '16px';
+
+        let optionsHTML = '';
+        q.options.forEach((opt, j) => {
+          let cls = 'option';
+          if (j === q.answer) cls += ' correct';
+          else if (j === userAns && !isCorrect) cls += ' wrong';
+          optionsHTML += `
+            <div class="${cls}" style="cursor:default;">
+              <span class="option-letter">${String.fromCharCode(97 + j)}</span>
+              <span class="option-text">${opt}${j === q.answer ? ' ✓' : (j === userAns ? ' ✗' : '')}</span>
+            </div>
+          `;
+        });
+
+        card.innerHTML = `
+          <span class="q-number" style="background:${isCorrect ? 'var(--success)' : 'var(--danger)'}">
+            Soal ${i + 1} ${isCorrect ? '✓ Benar' : '✗ Salah'}
+          </span>
+          <div class="q-text">${q.q}</div>
+          <div class="options">${optionsHTML}</div>
+        `;
+        review.appendChild(card);
+      });
+
+      window.scrollTo({ top: review.offsetTop - 20, behavior: 'smooth' });
+    }
+  </script>
+</body>
+</html>
